@@ -1,0 +1,64 @@
+services:
+  _defaults:
+    public: false
+    autowire: true
+    autoconfigure: true
+
+  OAT\Bundle\EnvironmentManagementClientBundle\Http\ArgumentValueResolver\FeatureFlagValueResolver:
+    tags:
+      - { name: controller.argument_value_resolver, priority: 200 }
+
+  OAT\Bundle\EnvironmentManagementClientBundle\Http\ArgumentValueResolver\TenantIdValueResolver:
+    tags:
+      - { name: controller.argument_value_resolver, priority: 200 }
+
+  OAT\Bundle\EnvironmentManagementClientBundle\Http\ResponseHelper: ~
+
+  ### vendor services
+  OAT\Library\EnvironmentManagementClient\Http\FeatureFlagExtractorInterface:
+    class: OAT\Library\EnvironmentManagementClient\Http\FeatureFlagHeaderExtractor
+
+  OAT\Library\EnvironmentManagementClient\Http\TenantIdExtractorInterface:
+    class: OAT\Library\EnvironmentManagementClient\Http\TenantIdHeaderExtractor
+
+  OAT\Library\EnvironmentManagementClient\Http\AuthorizationDetailsMarkerInterface:
+    class: OAT\Library\EnvironmentManagementClient\Http\AuthorizationDetailsHeaderMarker
+
+  OAT\Library\EnvironmentManagementClient\Grpc\Factory\GrpcClientFactory: ~
+
+  Oat\Envmgmt\Sidecar\ConfigServiceClient:
+    factory: ['@OAT\Library\EnvironmentManagementClient\Grpc\Factory\GrpcClientFactory', 'createConfigServiceClient']
+
+  Oat\Envmgmt\Sidecar\FeatureFlagServiceClient:
+    factory: ['@OAT\Library\EnvironmentManagementClient\Grpc\Factory\GrpcClientFactory', 'createFeatureFlagServiceClient']
+
+  Oat\Envmgmt\Sidecar\LtiServiceClient:
+    factory: ['@OAT\Library\EnvironmentManagementClient\Grpc\Factory\GrpcClientFactory', 'createLtiServiceClient']
+
+  Oat\Envmgmt\Sidecar\Oauth2ClientServiceClient:
+    factory: ['@OAT\Library\EnvironmentManagementClient\Grpc\Factory\GrpcClientFactory', 'createOauth2ClientServiceClient']
+
+  OAT\Library\EnvironmentManagementClient\Repository\ConfigurationRepositoryInterface:
+    class: OAT\Library\EnvironmentManagementClient\Grpc\ConfigurationRepository
+
+  OAT\Library\EnvironmentManagementClient\Repository\FeatureFlagRepositoryInterface:
+    class: OAT\Library\EnvironmentManagementClient\Grpc\FeatureFlagRepository
+
+  OAT\Library\EnvironmentManagementClient\Repository\LtiRegistrationRepositoryInterface:
+    class: OAT\Library\EnvironmentManagementClient\Grpc\LtiRegistrationRepository
+
+  OAT\Library\EnvironmentManagementClient\Repository\OAuth2ClientRepositoryInterface:
+    class: OAT\Library\EnvironmentManagementClient\Grpc\OAuth2ClientRepository
+
+  Nyholm\Psr7\Factory\Psr17Factory: ~
+
+  Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface:
+    class: Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory
+    arguments:
+      - '@Nyholm\Psr7\Factory\Psr17Factory'
+      - '@Nyholm\Psr7\Factory\Psr17Factory'
+      - '@Nyholm\Psr7\Factory\Psr17Factory'
+      - '@Nyholm\Psr7\Factory\Psr17Factory'
+
+  Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface:
+    class: Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory
