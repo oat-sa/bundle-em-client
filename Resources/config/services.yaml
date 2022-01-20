@@ -18,8 +18,14 @@ services:
   OAT\Library\EnvironmentManagementClient\Http\FeatureFlagExtractorInterface:
     class: OAT\Library\EnvironmentManagementClient\Http\FeatureFlagHeaderExtractor
 
+  OAT\Library\EnvironmentManagementClient\Http\JWTTokenExtractorInterface:
+    class: OAT\Library\EnvironmentManagementClient\Http\BearerJWTTokenExtractor
+
   OAT\Library\EnvironmentManagementClient\Http\TenantIdExtractorInterface:
-    class: OAT\Library\EnvironmentManagementClient\Http\TenantIdHeaderExtractor
+    class: OAT\Library\EnvironmentManagementClient\Http\TenantIdExtractor
+
+  OAT\Library\EnvironmentManagementClient\Http\RegistrationIdExtractorInterface:
+    class: OAT\Library\EnvironmentManagementClient\Http\RegistrationIdExtractor
 
   OAT\Library\EnvironmentManagementClient\Http\AuthorizationDetailsMarkerInterface:
     class: OAT\Library\EnvironmentManagementClient\Http\AuthorizationDetailsHeaderMarker

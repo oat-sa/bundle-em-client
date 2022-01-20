@@ -1,35 +1,35 @@
 {
-  "name": "oat-sa/bundle-em-client",
-  "description": "Symfony Bundle to assist communication with Environment Management",
-  "type": "symfony-bundle",
-  "license": "GPL-2.0-only",
-  "minimum-stability": "dev",
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/oat-sa/lib-em-php-client"
+    "name": "oat-sa/bundle-em-client",
+    "description": "Symfony Bundle to assist communication with Environment Management",
+    "type": "symfony-bundle",
+    "license": "GPL-2.0-only",
+    "minimum-stability": "dev",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "https://github.com/oat-sa/lib-em-php-client"
+        },
+        {
+            "type": "path",
+            "url": "https://github.com/oat-sa/lib-em-php-proto"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "OAT\\Bundle\\EnvironmentManagementClientBundle\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
     },
-    {
-      "type": "vcs",
-      "url": "https://github.com/oat-sa/lib-em-php-proto"
+    "require": {
+        "php": ">=8.0",
+        "nyholm/psr7": "^1.4",
+        "oat-sa/lib-em-php-client": "*",
+        "symfony/framework-bundle": "^4.4 || ^5.1",
+        "symfony/psr-http-message-bridge": "^2.1"
+    },
+    "config": {
+        "sort-packages": true
     }
-  ],
-  "autoload": {
-    "psr-4": {
-      "OAT\\Bundle\\EnvironmentManagementClientBundle\\": ""
-    },
-    "exclude-from-classmap": [
-      "/Tests/"
-    ]
-  },
-  "require": {
-    "php": ">=8.0",
-    "nyholm/psr7": "^1.4",
-    "oat-sa/lib-em-php-client": "*",
-    "symfony/framework-bundle": "^4.4 || ^5.1",
-    "symfony/psr-http-message-bridge": "^2.1"
-  },
-  "config": {
-    "sort-packages": true
-  }
 }
