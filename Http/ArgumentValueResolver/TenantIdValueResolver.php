@@ -29,13 +29,13 @@ final class TenantIdValueResolver implements ArgumentValueResolverInterface
         return $argument->getType() === 'string' && $argument->getName() === 'tenantId';
     }
 
+    /**
+     * @throws TenantIdNotFoundException
+     */
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
         $psrRequest = $this->psrHttpFactory->createRequest($request);
-        try {
-            yield $this->tenantIdExtractor->extract($psrRequest);
-        } catch (TenantIdNotFoundException $exception) {
-            yield "";
-        }
+
+        yield $this->tenantIdExtractor->extract($psrRequest);
     }
 }

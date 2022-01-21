@@ -18,13 +18,21 @@ services:
   OAT\Library\EnvironmentManagementClient\Http\FeatureFlagExtractorInterface:
     class: OAT\Library\EnvironmentManagementClient\Http\FeatureFlagHeaderExtractor
 
+  OAT\Library\EnvironmentManagementClient\Http\JWTTokenExtractorInterface:
+    class: OAT\Library\EnvironmentManagementClient\Http\BearerJWTTokenExtractor
+
   OAT\Library\EnvironmentManagementClient\Http\TenantIdExtractorInterface:
-    class: OAT\Library\EnvironmentManagementClient\Http\TenantIdHeaderExtractor
+    class: OAT\Library\EnvironmentManagementClient\Http\TenantIdExtractor
+
+  OAT\Library\EnvironmentManagementClient\Http\RegistrationIdExtractorInterface:
+    class: OAT\Library\EnvironmentManagementClient\Http\RegistrationIdExtractor
 
   OAT\Library\EnvironmentManagementClient\Http\AuthorizationDetailsMarkerInterface:
     class: OAT\Library\EnvironmentManagementClient\Http\AuthorizationDetailsHeaderMarker
 
-  OAT\Library\EnvironmentManagementClient\Grpc\Factory\GrpcClientFactory: ~
+  OAT\Library\EnvironmentManagementClient\Grpc\Factory\GrpcClientFactory:
+    arguments:
+      - '@Psr\Log\LoggerInterface'
 
   Oat\Envmgmt\Sidecar\ConfigServiceClient:
     factory: ['@OAT\Library\EnvironmentManagementClient\Grpc\Factory\GrpcClientFactory', 'createConfigServiceClient']
@@ -40,15 +48,27 @@ services:
 
   OAT\Library\EnvironmentManagementClient\Repository\ConfigurationRepositoryInterface:
     class: OAT\Library\EnvironmentManagementClient\Grpc\ConfigurationRepository
+    arguments:
+      - '@Oat\Envmgmt\Sidecar\ConfigServiceClient'
+      - '@Psr\Log\LoggerInterface'
 
   OAT\Library\EnvironmentManagementClient\Repository\FeatureFlagRepositoryInterface:
     class: OAT\Library\EnvironmentManagementClient\Grpc\FeatureFlagRepository
+    arguments:
+      - '@Oat\Envmgmt\Sidecar\FeatureFlagServiceClient'
+      - '@Psr\Log\LoggerInterface'
 
   OAT\Library\EnvironmentManagementClient\Repository\LtiRegistrationRepositoryInterface:
     class: OAT\Library\EnvironmentManagementClient\Grpc\LtiRegistrationRepository
+    arguments:
+      - '@Oat\Envmgmt\Sidecar\LtiServiceClient'
+      - '@Psr\Log\LoggerInterface'
 
   OAT\Library\EnvironmentManagementClient\Repository\OAuth2ClientRepositoryInterface:
     class: OAT\Library\EnvironmentManagementClient\Grpc\OAuth2ClientRepository
+    arguments:
+      - '@Oat\Envmgmt\Sidecar\Oauth2ClientServiceClient'
+      - '@Psr\Log\LoggerInterface'
 
   Nyholm\Psr7\Factory\Psr17Factory: ~
 
