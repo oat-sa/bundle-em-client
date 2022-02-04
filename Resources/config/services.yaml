@@ -1,3 +1,6 @@
+parameters:
+  em.lti_gateway.url: '%env(resolve:LTI_GATEWAY_URL)%'
+
 services:
   _defaults:
     public: false
@@ -14,7 +17,38 @@ services:
 
   OAT\Bundle\EnvironmentManagementClientBundle\Http\ResponseHelper: ~
 
-  ### vendor services
+  ###> LTI libraries ###
+  OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializerInterface:
+    class: OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializer
+
+  OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemContainerSerializerInterface:
+    class: OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemContainerSerializer
+
+  OAT\Library\Lti1p3Ags\Serializer\Result\ResultContainerSerializerInterface:
+    class: OAT\Library\Lti1p3Ags\Serializer\Result\ResultContainerSerializer
+
+  OAT\Library\Lti1p3BasicOutcome\Serializer\Response\BasicOutcomeResponseSerializerInterface:
+    class: OAT\Library\Lti1p3BasicOutcome\Serializer\Response\BasicOutcomeResponseSerializer
+
+  OAT\Library\Lti1p3Nrps\Serializer\MembershipSerializerInterface:
+    class: OAT\Library\Lti1p3Nrps\Serializer\MembershipSerializer
+  ###< LTI libraries ###
+
+  ###> oat-sa/lib-em-php-proto ###
+  Oat\Envmgmt\Sidecar\ConfigServiceClient:
+    factory: ['@OAT\Library\EnvironmentManagementClient\Grpc\Factory\GrpcClientFactory', 'createConfigServiceClient']
+
+  Oat\Envmgmt\Sidecar\FeatureFlagServiceClient:
+    factory: ['@OAT\Library\EnvironmentManagementClient\Grpc\Factory\GrpcClientFactory', 'createFeatureFlagServiceClient']
+
+  Oat\Envmgmt\Sidecar\LtiServiceClient:
+    factory: ['@OAT\Library\EnvironmentManagementClient\Grpc\Factory\GrpcClientFactory', 'createLtiServiceClient']
+
+  Oat\Envmgmt\Sidecar\Oauth2ClientServiceClient:
+    factory: ['@OAT\Library\EnvironmentManagementClient\Grpc\Factory\GrpcClientFactory', 'createOauth2ClientServiceClient']
+  ###< oat-sa/lib-em-php-proto ###
+
+  ###> oat-sa/lib-em-php-client ###
   OAT\Library\EnvironmentManagementClient\Http\FeatureFlagExtractorInterface:
     class: OAT\Library\EnvironmentManagementClient\Http\FeatureFlagHeaderExtractor
 
@@ -33,18 +67,6 @@ services:
   OAT\Library\EnvironmentManagementClient\Grpc\Factory\GrpcClientFactory:
     arguments:
       - '@Psr\Log\LoggerInterface'
-
-  Oat\Envmgmt\Sidecar\ConfigServiceClient:
-    factory: ['@OAT\Library\EnvironmentManagementClient\Grpc\Factory\GrpcClientFactory', 'createConfigServiceClient']
-
-  Oat\Envmgmt\Sidecar\FeatureFlagServiceClient:
-    factory: ['@OAT\Library\EnvironmentManagementClient\Grpc\Factory\GrpcClientFactory', 'createFeatureFlagServiceClient']
-
-  Oat\Envmgmt\Sidecar\LtiServiceClient:
-    factory: ['@OAT\Library\EnvironmentManagementClient\Grpc\Factory\GrpcClientFactory', 'createLtiServiceClient']
-
-  Oat\Envmgmt\Sidecar\Oauth2ClientServiceClient:
-    factory: ['@OAT\Library\EnvironmentManagementClient\Grpc\Factory\GrpcClientFactory', 'createOauth2ClientServiceClient']
 
   OAT\Library\EnvironmentManagementClient\Repository\ConfigurationRepositoryInterface:
     class: OAT\Library\EnvironmentManagementClient\Grpc\ConfigurationRepository
@@ -69,7 +91,46 @@ services:
     arguments:
       - '@Oat\Envmgmt\Sidecar\Oauth2ClientServiceClient'
       - '@Psr\Log\LoggerInterface'
+  ###< oat-sa/lib-em-php-client ###
 
+  ###> oat-sa/lib-em-php-lti-client ###
+  OAT\Library\EnvironmentManagementLtiClient\Gateway\LtiGatewayInterface:
+    class: OAT\Library\EnvironmentManagementLtiClient\Gateway\LtiGateway
+    arguments:
+      $ltiGatewayUrl: '%em.lti_gateway.url%'
+
+  OAT\Library\EnvironmentManagementLtiClient\Client\LtiAgsClientInterface:
+    class: OAT\Library\EnvironmentManagementLtiClient\Client\LtiAgsClient
+    arguments:
+      $ltiGateway: '@OAT\Library\EnvironmentManagementLtiClient\Gateway\LtiGatewayInterface'
+      $lineItemSerializer: '@OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializerInterface'
+      $lineItemContainerSerializer: '@OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemContainerSerializerInterface'
+      $resultContainerSerializer: '@OAT\Library\Lti1p3Ags\Serializer\Result\ResultContainerSerializerInterface'
+
+  OAT\Library\EnvironmentManagementLtiClient\Client\LtiBasicOutcomeClientInterface:
+    class: OAT\Library\EnvironmentManagementLtiClient\Client\LtiBasicOutcomeClient
+    arguments:
+      $ltiGateway: '@OAT\Library\EnvironmentManagementLtiClient\Gateway\LtiGatewayInterface'
+      $basicOutcomeResponseSerializer: '@OAT\Library\Lti1p3BasicOutcome\Serializer\Response\BasicOutcomeResponseSerializerInterface'
+
+  OAT\Library\EnvironmentManagementLtiClient\Client\LtiCoreClientInterface:
+    class: OAT\Library\EnvironmentManagementLtiClient\Client\LtiCoreClient
+    arguments:
+      $ltiGateway: '@OAT\Library\EnvironmentManagementLtiClient\Gateway\LtiGatewayInterface'
+
+  OAT\Library\EnvironmentManagementLtiClient\Client\LtiNrpsClientInterface:
+    class: OAT\Library\EnvironmentManagementLtiClient\Client\LtiNrpsClient
+    arguments:
+      $ltiGateway: '@OAT\Library\EnvironmentManagementLtiClient\Gateway\LtiGatewayInterface'
+      $membershipSerializer: '@OAT\Library\Lti1p3Nrps\Serializer\MembershipSerializerInterface'
+
+  OAT\Library\EnvironmentManagementLtiClient\Client\LtiProctoringClientInterface:
+    class: OAT\Library\EnvironmentManagementLtiClient\Client\LtiProctoringClient
+    arguments:
+      $ltiGateway: '@OAT\Library\EnvironmentManagementLtiClient\Gateway\LtiGatewayInterface'
+  ###< oat-sa/lib-em-php-lti-client ###
+
+  ###> vendors ###
   Nyholm\Psr7\Factory\Psr17Factory: ~
 
   Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface:
@@ -82,3 +143,4 @@ services:
 
   Symfony\Bridge\PsrHttpMessage\HttpFoundationFactoryInterface:
     class: Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory
+  ###< vendors ###

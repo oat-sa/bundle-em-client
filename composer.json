@@ -7,7 +7,15 @@
   "repositories": [
     {
       "type": "vcs",
+      "url": "https://github.com/oat-sa/lib-em-php-lti-client"
+    },
+    {
+      "type": "vcs",
       "url": "https://github.com/oat-sa/lib-em-php-client"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/oat-sa/lib-em-php-lti-events"
     },
     {
       "type": "vcs",
@@ -18,6 +26,7 @@
     "php": ">=8.0",
     "nyholm/psr7": "^1.4",
     "oat-sa/lib-em-php-client": "*",
+    "oat-sa/lib-em-php-lti-client": "*",
     "symfony/framework-bundle": "^4.4 || ^5.1",
     "symfony/psr-http-message-bridge": "^2.1"
   },
