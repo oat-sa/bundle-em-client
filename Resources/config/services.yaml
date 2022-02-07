@@ -58,6 +58,9 @@ services:
   OAT\Library\EnvironmentManagementClient\Http\TenantIdExtractorInterface:
     class: OAT\Library\EnvironmentManagementClient\Http\TenantIdExtractor
 
+  OAT\Library\EnvironmentManagementClient\Http\LtiMessageExtractorInterface:
+    class: OAT\Library\EnvironmentManagementClient\Http\LtiMessageExtractor
+
   OAT\Library\EnvironmentManagementClient\Http\RegistrationIdExtractorInterface:
     class: OAT\Library\EnvironmentManagementClient\Http\RegistrationIdExtractor
 
