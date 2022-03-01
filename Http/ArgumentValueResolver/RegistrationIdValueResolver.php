@@ -2,11 +2,13 @@
 
 namespace OAT\Bundle\EnvironmentManagementClientBundle\Http\ArgumentValueResolver;
 
+use OAT\Library\EnvironmentManagementClient\Exception\TokenUnauthorizedException;
 use OAT\Library\EnvironmentManagementClient\Http\RegistrationIdExtractorInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class RegistrationIdValueResolver implements ArgumentValueResolverInterface
 {
@@ -30,6 +32,10 @@ class RegistrationIdValueResolver implements ArgumentValueResolverInterface
     {
         $psrRequest = $this->httpMessageFactory->createRequest($request);
 
-        yield $this->registrationIdExtractor->extract($psrRequest);
+        try {
+            yield $this->registrationIdExtractor->extract($psrRequest);
+        } catch (TokenUnauthorizedException $exception) {
+            throw new UnauthorizedHttpException('Bearer', $exception->getMessage(), $exception);
+        }
     }
 }

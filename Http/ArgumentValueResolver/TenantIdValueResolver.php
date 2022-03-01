@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace OAT\Bundle\EnvironmentManagementClientBundle\Http\ArgumentValueResolver;
 
 use OAT\Library\EnvironmentManagementClient\Exception\TenantIdNotFoundException;
+use OAT\Library\EnvironmentManagementClient\Exception\TokenUnauthorizedException;
 use OAT\Library\EnvironmentManagementClient\Http\TenantIdExtractorInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 final class TenantIdValueResolver implements ArgumentValueResolverInterface
 {
@@ -36,6 +38,10 @@ final class TenantIdValueResolver implements ArgumentValueResolverInterface
     {
         $psrRequest = $this->psrHttpFactory->createRequest($request);
 
-        yield $this->tenantIdExtractor->extract($psrRequest);
+        try {
+            yield $this->tenantIdExtractor->extract($psrRequest);
+        } catch (TokenUnauthorizedException $exception) {
+            throw new UnauthorizedHttpException('Bearer', $exception->getMessage(), $exception);
+        }
     }
 }
