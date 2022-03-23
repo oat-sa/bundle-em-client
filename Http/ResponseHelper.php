@@ -25,10 +25,10 @@ final class ResponseHelper
         $this->authorizationDetailsHeaderMarker = $authorizationDetailsHeaderMarker;
     }
 
-    public function withAuthorizationDetailsMarker(Response $response): Response
+    public function withAuthorizationDetailsMarker(Response $response, string $clientId, string $refreshTokenId): Response
     {
         $psrResponse = $this->httpMessageFactory->createResponse($response);
-        $psrResponse = $this->authorizationDetailsHeaderMarker->withAuthDetails($psrResponse);
+        $psrResponse = $this->authorizationDetailsHeaderMarker->withAuthDetails($psrResponse, $clientId, $refreshTokenId);
 
         return $this->httpFoundationFactory->createResponse($psrResponse);
     }
