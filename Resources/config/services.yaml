@@ -7,11 +7,8 @@ services:
     autowire: true
     autoconfigure: true
 
-  OAT\Bundle\EnvironmentManagementClientBundle\Http\ArgumentValueResolver\FeatureFlagValueResolver:
-    tags:
-      - { name: controller.argument_value_resolver, priority: 200 }
-
-  OAT\Bundle\EnvironmentManagementClientBundle\Http\ArgumentValueResolver\TenantIdValueResolver:
+  OAT\Bundle\EnvironmentManagementClientBundle\Http\ArgumentValueResolver\:
+    resource: '../../Http/ArgumentValueResolver/*ValueResolver.php'
     tags:
       - { name: controller.argument_value_resolver, priority: 200 }
 
