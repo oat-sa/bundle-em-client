@@ -13,14 +13,14 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 
 final class FeatureFlagValueResolver implements ArgumentValueResolverInterface
 {
-    private HttpMessageFactoryInterface $psrHttpFactory;
+    private HttpMessageFactoryInterface $httpMessageFactory;
     private FeatureFlagExtractorInterface $featureFlagExtractor;
 
     public function __construct(
-        HttpMessageFactoryInterface $psrHttpFactory,
+        HttpMessageFactoryInterface $httpMessageFactory,
         FeatureFlagExtractorInterface $featureFlagExtractor
     ) {
-        $this->psrHttpFactory = $psrHttpFactory;
+        $this->httpMessageFactory = $httpMessageFactory;
         $this->featureFlagExtractor = $featureFlagExtractor;
     }
 
@@ -31,7 +31,7 @@ final class FeatureFlagValueResolver implements ArgumentValueResolverInterface
 
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
-        $psrRequest = $this->psrHttpFactory->createRequest($request);
+        $psrRequest = $this->httpMessageFactory->createRequest($request);
 
         yield $this->featureFlagExtractor->extract($psrRequest);
     }

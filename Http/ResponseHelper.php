@@ -11,24 +11,24 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class ResponseHelper
 {
-    private HttpMessageFactoryInterface $psrHttpFactory;
+    private HttpMessageFactoryInterface $httpMessageFactory;
     private HttpFoundationFactoryInterface $httpFoundationFactory;
     private AuthorizationDetailsMarkerInterface $authorizationDetailsHeaderMarker;
 
     public function __construct(
-        HttpMessageFactoryInterface $psrHttpFactory,
+        HttpMessageFactoryInterface $httpMessageFactory,
         HttpFoundationFactoryInterface $httpFoundationFactory,
         AuthorizationDetailsMarkerInterface $authorizationDetailsHeaderMarker
     ) {
-        $this->psrHttpFactory = $psrHttpFactory;
+        $this->httpMessageFactory = $httpMessageFactory;
         $this->httpFoundationFactory = $httpFoundationFactory;
         $this->authorizationDetailsHeaderMarker = $authorizationDetailsHeaderMarker;
     }
 
-    public function withAuthorizationDetailsMarker(Response $response): Response
+    public function withAuthorizationDetailsMarker(Response $response, string $clientId, string $refreshTokenId): Response
     {
-        $psrResponse = $this->psrHttpFactory->createResponse($response);
-        $psrResponse = $this->authorizationDetailsHeaderMarker->withAuthDetails($psrResponse);
+        $psrResponse = $this->httpMessageFactory->createResponse($response);
+        $psrResponse = $this->authorizationDetailsHeaderMarker->withAuthDetails($psrResponse, $clientId, $refreshTokenId);
 
         return $this->httpFoundationFactory->createResponse($psrResponse);
     }
