@@ -4,42 +4,34 @@ declare(strict_types=1);
 
 namespace OAT\Bundle\EnvironmentManagementClientBundle\Http\ArgumentValueResolver;
 
-use OAT\Library\EnvironmentManagementClient\Exception\TenantIdNotFoundException;
+use Lcobucci\JWT\Token;
 use OAT\Library\EnvironmentManagementClient\Exception\TokenUnauthorizedException;
-use OAT\Library\EnvironmentManagementClient\Http\TenantIdExtractorInterface;
+use OAT\Library\EnvironmentManagementClient\Http\JWTTokenExtractorInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
-final class TenantIdValueResolver implements ArgumentValueResolverInterface
+class AccessTokenValueResolver implements ArgumentValueResolverInterface
 {
-    private HttpMessageFactoryInterface $psrHttpFactory;
-    private TenantIdExtractorInterface $tenantIdExtractor;
-
     public function __construct(
-        HttpMessageFactoryInterface $psrHttpFactory,
-        TenantIdExtractorInterface $tenantIdExtractor
-    ) {
-        $this->psrHttpFactory = $psrHttpFactory;
-        $this->tenantIdExtractor = $tenantIdExtractor;
-    }
+        private HttpMessageFactoryInterface $httpMessageFactory,
+        private JWTTokenExtractorInterface $jwtTokenExtractor
+    ) {}
 
     public function supports(Request $request, ArgumentMetadata $argument): bool
     {
-        return $argument->getType() === 'string' && $argument->getName() === 'tenantId';
+        return Token::class === $argument->getType()
+            && 'accessToken' === $argument->getName();
     }
 
-    /**
-     * @throws TenantIdNotFoundException
-     */
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
-        $psrRequest = $this->psrHttpFactory->createRequest($request);
+        $psrRequest = $this->httpMessageFactory->createRequest($request);
 
         try {
-            yield $this->tenantIdExtractor->extract($psrRequest);
+            yield $this->jwtTokenExtractor->extract($psrRequest);
         } catch (TokenUnauthorizedException $exception) {
             throw new UnauthorizedHttpException('Bearer', $exception->getMessage(), $exception);
         }
