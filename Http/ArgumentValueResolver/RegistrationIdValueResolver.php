@@ -1,45 +1,39 @@
 <?php
 
-declare(strict_types=1);
-
 namespace OAT\Bundle\EnvironmentManagementClientBundle\Http\ArgumentValueResolver;
 
-use OAT\Library\EnvironmentManagementClient\Exception\TenantIdNotFoundException;
 use OAT\Library\EnvironmentManagementClient\Exception\TokenUnauthorizedException;
-use OAT\Library\EnvironmentManagementClient\Http\TenantIdExtractorInterface;
+use OAT\Library\EnvironmentManagementClient\Http\RegistrationIdExtractorInterface;
 use Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ArgumentValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
-final class TenantIdValueResolver implements ArgumentValueResolverInterface
+class RegistrationIdValueResolver implements ArgumentValueResolverInterface
 {
-    private HttpMessageFactoryInterface $psrHttpFactory;
-    private TenantIdExtractorInterface $tenantIdExtractor;
+    private HttpMessageFactoryInterface $httpMessageFactory;
+    private RegistrationIdExtractorInterface $registrationIdExtractor;
 
     public function __construct(
-        HttpMessageFactoryInterface $psrHttpFactory,
-        TenantIdExtractorInterface $tenantIdExtractor
+        HttpMessageFactoryInterface $httpMessageFactory,
+        RegistrationIdExtractorInterface $registrationIdExtractor
     ) {
-        $this->psrHttpFactory = $psrHttpFactory;
-        $this->tenantIdExtractor = $tenantIdExtractor;
+        $this->httpMessageFactory = $httpMessageFactory;
+        $this->registrationIdExtractor = $registrationIdExtractor;
     }
 
     public function supports(Request $request, ArgumentMetadata $argument): bool
     {
-        return $argument->getType() === 'string' && $argument->getName() === 'tenantId';
+        return $argument->getType() === 'string' && $argument->getName() === 'registrationId';
     }
 
-    /**
-     * @throws TenantIdNotFoundException
-     */
     public function resolve(Request $request, ArgumentMetadata $argument): iterable
     {
-        $psrRequest = $this->psrHttpFactory->createRequest($request);
+        $psrRequest = $this->httpMessageFactory->createRequest($request);
 
         try {
-            yield $this->tenantIdExtractor->extract($psrRequest);
+            yield $this->registrationIdExtractor->extract($psrRequest);
         } catch (TokenUnauthorizedException $exception) {
             throw new UnauthorizedHttpException('Bearer', $exception->getMessage(), $exception);
         }
