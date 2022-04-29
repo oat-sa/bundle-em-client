@@ -39,6 +39,13 @@ final class ResponseHelperTest extends TestCase
         $authMarkerFactoryMock = $this->createMock(AuthorizationDetailsMarkerInterface::class);
 
         $response = new Response();
+        $response->headers->set('X-OAT-WITH-AUTH-DETAILS', json_encode([
+            'clientId' => 'clientId',
+            'refreshTokenId' => 'refreshTokenId',
+            'userIdentifier' => null,
+            'userRole' => null,
+            'mode' => AuthorizationDetailsMarkerInterface::MODE_COOKIE,
+        ]));
         $psrResponse = $this->createMock(ResponseInterface::class);
 
         $messageFactoryMock->expects($this->once())
@@ -48,7 +55,7 @@ final class ResponseHelperTest extends TestCase
 
         $authMarkerFactoryMock->expects($this->once())
             ->method('withAuthDetails')
-            ->with($psrResponse)
+            ->with($psrResponse, "clientId", "refreshTokenId", null, null, AuthorizationDetailsMarkerInterface::MODE_COOKIE)
             ->willReturn($psrResponse);
 
         $foundationFactoryMock->expects($this->once())
@@ -59,8 +66,7 @@ final class ResponseHelperTest extends TestCase
         $subject = new ResponseHelper($messageFactoryMock, $foundationFactoryMock, $authMarkerFactoryMock);
 
         $response = $subject->withAuthorizationDetailsMarker($response, "clientId", "refreshTokenId");
-
-        $withAuthDetailsHeader = $response->headers->get('X-OAT-WITH-AUTH-DETAILS')[0];
+        $withAuthDetailsHeader = $response->headers->get('X-OAT-WITH-AUTH-DETAILS');
 
         $this->assertNotNull(
             $withAuthDetailsHeader,
@@ -70,8 +76,10 @@ final class ResponseHelperTest extends TestCase
         $res_array = (array)json_decode($withAuthDetailsHeader);
 
         $this->assertArrayHasKey('clientId', $res_array);
-        $this->assertEquals('client1', $res_array['clientId']);
+        $this->assertEquals('clientId', $res_array['clientId']);
         $this->assertArrayHasKey('refreshTokenId', $res_array);
-        $this->assertEquals('refreshToken1', $res_array['refreshTokenId']);
+        $this->assertEquals('refreshTokenId', $res_array['refreshTokenId']);
+        $this->assertArrayHasKey('mode', $res_array);
+        $this->assertEquals(AuthorizationDetailsMarkerInterface::MODE_COOKIE, $res_array['mode']);
     }
 }
