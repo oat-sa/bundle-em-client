@@ -14,6 +14,8 @@ services:
 
   OAT\Bundle\EnvironmentManagementClientBundle\Http\ResponseHelper: ~
 
+  OAT\Bundle\EnvironmentManagementClientBundle\EventSubscriber\HttpRequestSecuritySubscriber: ~
+
   ###> LTI libraries ###
   OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializerInterface:
     class: OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializer
