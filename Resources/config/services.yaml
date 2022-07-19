@@ -36,6 +36,12 @@ services:
 
   OAT\Library\Lti1p3Nrps\Serializer\MembershipSerializerInterface:
     class: OAT\Library\Lti1p3Nrps\Serializer\MembershipSerializer
+
+  OAT\Library\Lti1p3Core\Registration\RegistrationRepositoryInterface:
+    class: OAT\Library\EnvironmentManagementClient\Lti\Repository\RegistrationRepository
+    arguments:
+      - '@OAT\Library\EnvironmentManagementClient\Repository\LtiRegistrationRepositoryInterface'
+      - '@OAT\Library\EnvironmentManagementClient\Converter\LtiRegistrationConverter'
   ###< LTI libraries ###
 
   ###> oat-sa/lib-em-php-proto ###
