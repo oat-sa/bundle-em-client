@@ -27,6 +27,7 @@
     "nyholm/psr7": "^1.4",
     "oat-sa/lib-em-php-client": "*",
     "oat-sa/lib-em-php-lti-client": "*",
+    "oat-sa/lib-em-php-lti-events": "*",
     "symfony/framework-bundle": "^4.4 || ^5.1",
     "symfony/psr-http-message-bridge": "^2.1"
   },
