@@ -19,6 +19,9 @@ services:
   OAT\Bundle\EnvironmentManagementClientBundle\EventSubscriber\HttpRequestSecuritySubscriber: ~
 
   ###> LTI libraries ###
+  OAT\Library\Lti1p3Core\Security\Key\KeyChainFactoryInterface:
+    class: OAT\Library\Lti1p3Core\Security\Key\KeyChainFactory
+
   OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializerInterface:
     class: OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializer
 
@@ -33,6 +36,12 @@ services:
 
   OAT\Library\Lti1p3Nrps\Serializer\MembershipSerializerInterface:
     class: OAT\Library\Lti1p3Nrps\Serializer\MembershipSerializer
+
+  OAT\Library\Lti1p3Core\Registration\RegistrationRepositoryInterface:
+    class: OAT\Library\EnvironmentManagementClient\Lti\Repository\RegistrationRepository
+    arguments:
+      - '@OAT\Library\EnvironmentManagementClient\Repository\LtiRegistrationRepositoryInterface'
+      - '@OAT\Library\EnvironmentManagementClient\Converter\LtiRegistrationConverter'
   ###< LTI libraries ###
 
   ###> oat-sa/lib-em-php-proto ###
@@ -95,6 +104,19 @@ services:
     arguments:
       - '@Oat\Envmgmt\Sidecar\Oauth2ClientServiceClient'
       - '@Psr\Log\LoggerInterface'
+
+  OAT\Library\EnvironmentManagementClient\Converter\LtiRegistrationConverter:
+    class: OAT\Library\EnvironmentManagementClient\Converter\LtiRegistrationConverter
+    arguments:
+      - '@OAT\Library\EnvironmentManagementClient\Converter\LtiPlatformConverter'
+      - '@OAT\Library\EnvironmentManagementClient\Converter\LtiToolConverter'
+      - '@OAT\Library\Lti1p3Core\Security\Key\KeyChainFactoryInterface'
+
+  OAT\Library\EnvironmentManagementClient\Converter\LtiPlatformConverter:
+    class: OAT\Library\EnvironmentManagementClient\Converter\LtiPlatformConverter
+
+  OAT\Library\EnvironmentManagementClient\Converter\LtiToolConverter:
+    class: OAT\Library\EnvironmentManagementClient\Converter\LtiToolConverter
   ###< oat-sa/lib-em-php-client ###
 
   ###> oat-sa/lib-em-php-lti-client ###
