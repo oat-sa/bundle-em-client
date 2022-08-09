@@ -18,6 +18,8 @@ services:
 
   OAT\Bundle\EnvironmentManagementClientBundle\EventSubscriber\HttpRequestSecuritySubscriber: ~
 
+  OAT\Bundle\EnvironmentManagementClientBundle\Http\Client\EnvironmentManagementAwareHttpClientFactory: ~
+
   ###> LTI libraries ###
   OAT\Library\Lti1p3Core\Security\Key\KeyChainFactoryInterface:
     class: OAT\Library\Lti1p3Core\Security\Key\KeyChainFactory
