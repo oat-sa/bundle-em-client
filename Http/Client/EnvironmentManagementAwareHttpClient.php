@@ -18,7 +18,9 @@ class EnvironmentManagementAwareHttpClient implements HttpClientInterface
 {
     public const OPTION_TENANT_ID = 'tenantId';
     public const OPTION_SCOPES = 'scopes';
+    public const OPTION_AUTH_SERVER_REQUEST_TIMEOUT = 'authServerRequestTimeout';
     private const ACCESS_TOKEN_CACHE_KEY = 'em_http_client_access_token_%s';
+    private const DEFAULT_AUTH_SERVER_REQUEST_TIMEOUT = null;
 
     public function __construct(
         private CacheInterface $cache,
@@ -59,12 +61,17 @@ class EnvironmentManagementAwareHttpClient implements HttpClientInterface
             ? is_array($options[self::OPTION_SCOPES]) ? $options[self::OPTION_SCOPES] : []
             : [];
 
+        $authServerRequestTimeout = array_key_exists(self::OPTION_AUTH_SERVER_REQUEST_TIMEOUT, $options)
+            ? (float) $options[self::OPTION_AUTH_SERVER_REQUEST_TIMEOUT]
+            : self::DEFAULT_AUTH_SERVER_REQUEST_TIMEOUT;
+
         unset($options[self::OPTION_TENANT_ID]);
         unset($options[self::OPTION_SCOPES]);
+        unset($options[self::OPTION_AUTH_SERVER_REQUEST_TIMEOUT]);
 
         return $this->decoratedHttpClient->request($method, $url, array_merge($options, [
             'headers' => [
-                'Authorization' => sprintf('Bearer %s', $this->getToken($tenantId, $scopes)),
+                'Authorization' => sprintf('Bearer %s', $this->getToken($tenantId, $scopes, $authServerRequestTimeout)),
             ],
         ]));
     }
@@ -72,59 +79,63 @@ class EnvironmentManagementAwareHttpClient implements HttpClientInterface
     /**
      * @throws CacheInvalidArgumentException
      */
-    private function getToken(string $tenantId, array $scopes = []): string
+    private function getToken(string $tenantId, array $scopes = [], ?float $authServerRequestTimeout = null): string
     {
-        return $this->cache->get(sprintf(self::ACCESS_TOKEN_CACHE_KEY, $tenantId), function(ItemInterface $item) use ($tenantId, $scopes) {
-            $oauth2Credentials = current(array_filter($this->oauth2ClientCredentials, function (array $credentials) use ($tenantId) {
-                return ($credentials['tenantId'] ?? null) === $tenantId;
-            }));
+        return $this->cache->get(
+            sprintf(self::ACCESS_TOKEN_CACHE_KEY, $tenantId),
+            function(ItemInterface $item) use ($tenantId, $scopes, $authServerRequestTimeout) {
+                $oauth2Credentials = current(array_filter($this->oauth2ClientCredentials, function (array $credentials) use ($tenantId) {
+                    return ($credentials['tenantId'] ?? null) === $tenantId;
+                }));
 
-            if (!$oauth2Credentials) {
-                throw new InvalidArgumentException(
-                    sprintf(
-                        'No OAuth2 credentials found for tenant %s',
-                        $tenantId
-                    )
-                );
-            }
+                if (!$oauth2Credentials) {
+                    throw new InvalidArgumentException(
+                        sprintf(
+                            'No OAuth2 credentials found for tenant %s',
+                            $tenantId
+                        )
+                    );
+                }
 
-            if (!array_key_exists('clientId', $oauth2Credentials) || !array_key_exists('clientSecret', $oauth2Credentials)) {
-                throw new InvalidArgumentException(
-                    sprintf(
-                        'No OAuth2 client ID and/or client secret found for tenant %s',
-                        $tenantId
-                    )
-                );
-            }
+                if (!array_key_exists('clientId', $oauth2Credentials) || !array_key_exists('clientSecret', $oauth2Credentials)) {
+                    throw new InvalidArgumentException(
+                        sprintf(
+                            'No OAuth2 client ID and/or client secret found for tenant %s',
+                            $tenantId
+                        )
+                    );
+                }
 
-            $response = $this->decoratedHttpClient->request(
-                'POST',
-                $this->authServerHost . $this->authServerTokenRequestPath,
-                [
-                    'form_params' => [
-                        'grant_type' => 'client_credentials',
-                        'client_id' => $oauth2Credentials['clientId'],
-                        'client_secret' => $oauth2Credentials['clientSecret'],
-                        'scope' => implode(' ', $scopes),
+                $response = $this->decoratedHttpClient->request(
+                    'POST',
+                    $this->authServerHost . $this->authServerTokenRequestPath,
+                    [
+                        'form_params' => [
+                            'grant_type' => 'client_credentials',
+                            'client_id' => $oauth2Credentials['clientId'],
+                            'client_secret' => $oauth2Credentials['clientSecret'],
+                            'scope' => implode(' ', $scopes),
+                        ],
+                        'timeout' => $authServerRequestTimeout,
                     ],
-                ],
-            );
-
-            $responsePayload = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
-
-            if ($response->getStatusCode() !== 200) {
-                throw new RuntimeException(
-                    sprintf(
-                        'Failed to get access token for tenant %s. Reason: %s',
-                        $tenantId,
-                        $responsePayload['message'] ?? 'Unknown'
-                    )
                 );
+
+                $responsePayload = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+                if ($response->getStatusCode() !== 200) {
+                    throw new RuntimeException(
+                        sprintf(
+                            'Failed to get access token for tenant %s. Reason: %s',
+                            $tenantId,
+                            $responsePayload['message'] ?? 'Unknown'
+                        )
+                    );
+                }
+
+                $item->expiresAfter($responsePayload['expires_in']);
+
+                return $responsePayload['access_token'];
             }
-
-            $item->expiresAfter($responsePayload['expires_in']);
-
-            return $responsePayload['access_token'];
-        });
+        );
     }
 }

@@ -73,6 +73,7 @@ class EnvironmentManagementAwareHttpClientTest extends TestCase
                         'client_secret' => 'clientSecret1',
                         'scope' => '',
                     ],
+                    'timeout' => null,
                 ]],
                 [$method, $url, ['headers' => ['Authorization' => 'Bearer token']]],
             )
@@ -115,6 +116,7 @@ class EnvironmentManagementAwareHttpClientTest extends TestCase
                         'client_secret' => 'clientSecret1',
                         'scope' => 'foo bar',
                     ],
+                    'timeout' => null,
                 ]],
                 [$method, $url, ['headers' => ['Authorization' => 'Bearer token']]],
             )
@@ -197,6 +199,7 @@ class EnvironmentManagementAwareHttpClientTest extends TestCase
                         'client_secret' => 'clientSecret1',
                         'scope' => '',
                     ],
+                    'timeout' => null,
                 ]],
                 [$method, $url, ['headers' => ['Authorization' => 'Bearer token']]],
             )
@@ -217,6 +220,49 @@ class EnvironmentManagementAwareHttpClientTest extends TestCase
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Failed to get access token for tenant 1. Reason: reason');
+
+        $this->assertSame($responseMock, $this->subject->request($method, $url, $options));
+    }
+
+    public function testRequestWithAuthServerRequestTimeoutOption(): void
+    {
+        $method = 'method';
+        $url = 'url';
+        $options = [
+            EnvironmentManagementAwareHttpClient::OPTION_TENANT_ID => '1',
+            EnvironmentManagementAwareHttpClient::OPTION_AUTH_SERVER_REQUEST_TIMEOUT => 2.5,
+        ];
+        $responseMock = $this->createMock(ResponseInterface::class);
+        $authServerResponseMock = $this->createMock(ResponseInterface::class);
+
+        $this->httpClientMock
+            ->method('request')
+            ->withConsecutive(
+                ['POST', $this->authServerHost . $this->authServerTokenRequestPath, [
+                    'form_params' => [
+                        'grant_type' => 'client_credentials',
+                        'client_id' => 'clientId1',
+                        'client_secret' => 'clientSecret1',
+                        'scope' => '',
+                    ],
+                    'timeout' => 2.5,
+                ]],
+                [$method, $url, ['headers' => ['Authorization' => 'Bearer token']]],
+            )
+            ->willReturnOnConsecutiveCalls(
+                $authServerResponseMock,
+                $responseMock,
+            );
+
+        $authServerResponseMock
+            ->expects($this->once())
+            ->method('getStatusCode')
+            ->willReturn(200);
+
+        $authServerResponseMock
+            ->expects($this->once())
+            ->method('getContent')
+            ->willReturn('{"access_token": "token", "expires_in": 3600}');
 
         $this->assertSame($responseMock, $this->subject->request($method, $url, $options));
     }
