@@ -7,6 +7,7 @@ namespace OAT\Bundle\EnvironmentManagementClientBundle\Http\Client;
 use InvalidArgumentException;
 use Psr\Cache\InvalidArgumentException as CacheInvalidArgumentException;
 use RuntimeException;
+use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
@@ -106,16 +107,20 @@ class EnvironmentManagementAwareHttpClient implements HttpClientInterface
                     );
                 }
 
+                $formFields = [
+                    'grant_type' => 'client_credentials',
+                    'client_id' => $oauth2Credentials['clientId'],
+                    'client_secret' => $oauth2Credentials['clientSecret'],
+                    'scope' => implode(' ', $scopes),
+                ];
+
+                $formData = new FormDataPart($formFields);
+
                 $response = $this->decoratedHttpClient->request(
                     'POST',
                     $this->authServerHost . $this->authServerTokenRequestPath,
                     [
-                        'form_params' => [
-                            'grant_type' => 'client_credentials',
-                            'client_id' => $oauth2Credentials['clientId'],
-                            'client_secret' => $oauth2Credentials['clientSecret'],
-                            'scope' => implode(' ', $scopes),
-                        ],
+                        'body' => $formData->bodyToIterable(),
                         'timeout' => $authServerRequestTimeout,
                     ],
                 );
