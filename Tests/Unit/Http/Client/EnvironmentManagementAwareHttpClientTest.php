@@ -10,6 +10,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Symfony\Component\Cache\Adapter\NullAdapter;
+use Symfony\Component\Mime\Part\Multipart\FormDataPart;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Contracts\HttpClient\ResponseStreamInterface;
@@ -63,16 +64,20 @@ class EnvironmentManagementAwareHttpClientTest extends TestCase
         $responseMock = $this->createMock(ResponseInterface::class);
         $authServerResponseMock = $this->createMock(ResponseInterface::class);
 
+        $formFields = [
+            'grant_type' => 'client_credentials',
+            'client_id' => 'clientId1',
+            'client_secret' => 'clientSecret1',
+            'scope' => '',
+        ];
+
+        $formData = new FormDataPart($formFields);
+
         $this->httpClientMock
             ->method('request')
             ->withConsecutive(
                 ['POST', $this->authServerHost . $this->authServerTokenRequestPath, [
-                    'form_params' => [
-                        'grant_type' => 'client_credentials',
-                        'client_id' => 'clientId1',
-                        'client_secret' => 'clientSecret1',
-                        'scope' => '',
-                    ],
+                    'body' => $formData->bodyToIterable(),
                     'timeout' => null,
                 ]],
                 [$method, $url, ['headers' => ['Authorization' => 'Bearer token']]],
@@ -106,16 +111,20 @@ class EnvironmentManagementAwareHttpClientTest extends TestCase
         $responseMock = $this->createMock(ResponseInterface::class);
         $authServerResponseMock = $this->createMock(ResponseInterface::class);
 
+        $formFields = [
+            'grant_type' => 'client_credentials',
+            'client_id' => 'clientId1',
+            'client_secret' => 'clientSecret1',
+            'scope' => 'foo bar',
+        ];
+
+        $formData = new FormDataPart($formFields);
+
         $this->httpClientMock
             ->method('request')
             ->withConsecutive(
                 ['POST', $this->authServerHost . $this->authServerTokenRequestPath, [
-                    'form_params' => [
-                        'grant_type' => 'client_credentials',
-                        'client_id' => 'clientId1',
-                        'client_secret' => 'clientSecret1',
-                        'scope' => 'foo bar',
-                    ],
+                    'body' => $formData->bodyToIterable(),
                     'timeout' => null,
                 ]],
                 [$method, $url, ['headers' => ['Authorization' => 'Bearer token']]],
@@ -189,16 +198,20 @@ class EnvironmentManagementAwareHttpClientTest extends TestCase
         $responseMock = $this->createMock(ResponseInterface::class);
         $authServerResponseMock = $this->createMock(ResponseInterface::class);
 
+        $formFields = [
+            'grant_type' => 'client_credentials',
+            'client_id' => 'clientId1',
+            'client_secret' => 'clientSecret1',
+            'scope' => '',
+        ];
+
+        $formData = new FormDataPart($formFields);
+
         $this->httpClientMock
             ->method('request')
             ->withConsecutive(
                 ['POST', $this->authServerHost . $this->authServerTokenRequestPath, [
-                    'form_params' => [
-                        'grant_type' => 'client_credentials',
-                        'client_id' => 'clientId1',
-                        'client_secret' => 'clientSecret1',
-                        'scope' => '',
-                    ],
+                    'body' => $formData->bodyToIterable(),
                     'timeout' => null,
                 ]],
                 [$method, $url, ['headers' => ['Authorization' => 'Bearer token']]],
@@ -235,16 +248,20 @@ class EnvironmentManagementAwareHttpClientTest extends TestCase
         $responseMock = $this->createMock(ResponseInterface::class);
         $authServerResponseMock = $this->createMock(ResponseInterface::class);
 
+        $formFields = [
+            'grant_type' => 'client_credentials',
+            'client_id' => 'clientId1',
+            'client_secret' => 'clientSecret1',
+            'scope' => '',
+        ];
+
+        $formData = new FormDataPart($formFields);
+
         $this->httpClientMock
             ->method('request')
             ->withConsecutive(
                 ['POST', $this->authServerHost . $this->authServerTokenRequestPath, [
-                    'form_params' => [
-                        'grant_type' => 'client_credentials',
-                        'client_id' => 'clientId1',
-                        'client_secret' => 'clientSecret1',
-                        'scope' => '',
-                    ],
+                    'body' => $formData->bodyToIterable(),
                     'timeout' => 2.5,
                 ]],
                 [$method, $url, ['headers' => ['Authorization' => 'Bearer token']]],
