@@ -64,22 +64,31 @@ class EnvironmentManagementAwareHttpClientTest extends TestCase
         $responseMock = $this->createMock(ResponseInterface::class);
         $authServerResponseMock = $this->createMock(ResponseInterface::class);
 
-        $formFields = [
-            'grant_type' => 'client_credentials',
-            'client_id' => 'clientId1',
-            'client_secret' => 'clientSecret1',
-            'scope' => '',
-        ];
-
-        $formData = new FormDataPart($formFields);
-
         $this->httpClientMock
             ->method('request')
             ->withConsecutive(
-                ['POST', $this->authServerHost . $this->authServerTokenRequestPath, [
-                    'body' => $formData->bodyToIterable(),
-                    'timeout' => null,
-                ]],
+                [
+                    'POST',
+                    $this->authServerHost . $this->authServerTokenRequestPath,
+                    $this->callback(function ($arrayParam) {
+                        $formFields = [
+                            'grant_type' => 'client_credentials',
+                            'client_id' => 'clientId1',
+                            'client_secret' => 'clientSecret1',
+                            'scope' => '',
+                        ];
+
+                        $formData = new FormDataPart($formFields);
+
+                        return
+                            array_key_exists('body', $arrayParam)
+                            && $arrayParam['body'] == $formData->bodyToIterable()
+                            && array_key_exists('headers', $arrayParam)
+                            && str_contains($arrayParam['headers'][0], 'Content-Type: multipart/form-data; boundary=')
+                            && array_key_exists('timeout', $arrayParam)
+                            && $arrayParam['timeout'] === null;
+                    })
+                ],
                 [$method, $url, ['headers' => ['Authorization' => 'Bearer token']]],
             )
             ->willReturnOnConsecutiveCalls(
@@ -111,22 +120,31 @@ class EnvironmentManagementAwareHttpClientTest extends TestCase
         $responseMock = $this->createMock(ResponseInterface::class);
         $authServerResponseMock = $this->createMock(ResponseInterface::class);
 
-        $formFields = [
-            'grant_type' => 'client_credentials',
-            'client_id' => 'clientId1',
-            'client_secret' => 'clientSecret1',
-            'scope' => 'foo bar',
-        ];
-
-        $formData = new FormDataPart($formFields);
-
         $this->httpClientMock
             ->method('request')
             ->withConsecutive(
-                ['POST', $this->authServerHost . $this->authServerTokenRequestPath, [
-                    'body' => $formData->bodyToIterable(),
-                    'timeout' => null,
-                ]],
+                [
+                    'POST',
+                    $this->authServerHost . $this->authServerTokenRequestPath,
+                    $this->callback(function ($arrayParam) {
+                        $formFields = [
+                            'grant_type' => 'client_credentials',
+                            'client_id' => 'clientId1',
+                            'client_secret' => 'clientSecret1',
+                            'scope' => 'foo bar',
+                        ];
+
+                        $formData = new FormDataPart($formFields);
+
+                        return
+                            array_key_exists('body', $arrayParam)
+                            && $arrayParam['body'] == $formData->bodyToIterable()
+                            && array_key_exists('headers', $arrayParam)
+                            && str_contains($arrayParam['headers'][0], 'Content-Type: multipart/form-data; boundary=')
+                            && array_key_exists('timeout', $arrayParam)
+                            && $arrayParam['timeout'] === null;
+                    })
+                ],
                 [$method, $url, ['headers' => ['Authorization' => 'Bearer token']]],
             )
             ->willReturnOnConsecutiveCalls(
@@ -198,22 +216,31 @@ class EnvironmentManagementAwareHttpClientTest extends TestCase
         $responseMock = $this->createMock(ResponseInterface::class);
         $authServerResponseMock = $this->createMock(ResponseInterface::class);
 
-        $formFields = [
-            'grant_type' => 'client_credentials',
-            'client_id' => 'clientId1',
-            'client_secret' => 'clientSecret1',
-            'scope' => '',
-        ];
-
-        $formData = new FormDataPart($formFields);
-
         $this->httpClientMock
             ->method('request')
             ->withConsecutive(
-                ['POST', $this->authServerHost . $this->authServerTokenRequestPath, [
-                    'body' => $formData->bodyToIterable(),
-                    'timeout' => null,
-                ]],
+                [
+                    'POST',
+                    $this->authServerHost . $this->authServerTokenRequestPath,
+                    $this->callback(function ($arrayParam) {
+                        $formFields = [
+                            'grant_type' => 'client_credentials',
+                            'client_id' => 'clientId1',
+                            'client_secret' => 'clientSecret1',
+                            'scope' => '',
+                        ];
+
+                        $formData = new FormDataPart($formFields);
+
+                        return
+                            array_key_exists('body', $arrayParam)
+                            && $arrayParam['body'] == $formData->bodyToIterable()
+                            && array_key_exists('headers', $arrayParam)
+                            && str_contains($arrayParam['headers'][0], 'Content-Type: multipart/form-data; boundary=')
+                            && array_key_exists('timeout', $arrayParam)
+                            && $arrayParam['timeout'] === null;
+                    })
+                ],
                 [$method, $url, ['headers' => ['Authorization' => 'Bearer token']]],
             )
             ->willReturnOnConsecutiveCalls(
@@ -248,22 +275,31 @@ class EnvironmentManagementAwareHttpClientTest extends TestCase
         $responseMock = $this->createMock(ResponseInterface::class);
         $authServerResponseMock = $this->createMock(ResponseInterface::class);
 
-        $formFields = [
-            'grant_type' => 'client_credentials',
-            'client_id' => 'clientId1',
-            'client_secret' => 'clientSecret1',
-            'scope' => '',
-        ];
-
-        $formData = new FormDataPart($formFields);
-
         $this->httpClientMock
             ->method('request')
             ->withConsecutive(
-                ['POST', $this->authServerHost . $this->authServerTokenRequestPath, [
-                    'body' => $formData->bodyToIterable(),
-                    'timeout' => 2.5,
-                ]],
+                [
+                    'POST',
+                    $this->authServerHost . $this->authServerTokenRequestPath,
+                    $this->callback(function ($arrayParam) {
+                        $formFields = [
+                            'grant_type' => 'client_credentials',
+                            'client_id' => 'clientId1',
+                            'client_secret' => 'clientSecret1',
+                            'scope' => '',
+                        ];
+
+                        $formData = new FormDataPart($formFields);
+
+                        return
+                            array_key_exists('body', $arrayParam)
+                            && $arrayParam['body'] == $formData->bodyToIterable()
+                            && array_key_exists('headers', $arrayParam)
+                            && str_contains($arrayParam['headers'][0], 'Content-Type: multipart/form-data; boundary=')
+                            && array_key_exists('timeout', $arrayParam)
+                            && $arrayParam['timeout'] === 2.5;
+                    })
+                ],
                 [$method, $url, ['headers' => ['Authorization' => 'Bearer token']]],
             )
             ->willReturnOnConsecutiveCalls(

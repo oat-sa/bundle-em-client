@@ -121,6 +121,7 @@ class EnvironmentManagementAwareHttpClient implements HttpClientInterface
                     $this->authServerHost . $this->authServerTokenRequestPath,
                     [
                         'body' => $formData->bodyToIterable(),
+                        'headers' => $formData->getPreparedHeaders()->toArray(),
                         'timeout' => $authServerRequestTimeout,
                     ],
                 );
