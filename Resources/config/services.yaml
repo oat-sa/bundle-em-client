@@ -39,6 +39,9 @@ services:
   OAT\Library\Lti1p3Nrps\Serializer\MembershipSerializerInterface:
     class: OAT\Library\Lti1p3Nrps\Serializer\MembershipSerializer
 
+  OAT\Library\Lti1p3Proctoring\Serializer\AcsControlResultSerializerInterface:
+    class: OAT\Library\Lti1p3Proctoring\Serializer\AcsControlResultSerializer
+
   OAT\Library\Lti1p3Core\Registration\RegistrationRepositoryInterface:
     class: OAT\Library\EnvironmentManagementClient\Lti\Repository\RegistrationRepository
     arguments:
