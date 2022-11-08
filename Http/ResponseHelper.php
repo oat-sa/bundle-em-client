@@ -32,6 +32,7 @@ final class ResponseHelper
         string $userIdentifier = null,
         string $userRole = null,
         string $cookieDomain = null,
+        string $ltiToken = null,
         string $mode = AuthorizationDetailsMarkerInterface::MODE_COOKIE,
     ): Response {
         $psrResponse = $this->authorizationDetailsHeaderMarker->withAuthDetails(
@@ -41,6 +42,7 @@ final class ResponseHelper
             $userIdentifier,
             $userRole,
             $cookieDomain,
+            $ltiToken,
             $mode,
         );
 
