@@ -45,6 +45,8 @@ final class ResponseHelperTest extends TestCase
             'userIdentifier' => null,
             'userRole' => null,
             'mode' => AuthorizationDetailsMarkerInterface::MODE_COOKIE,
+            'cookieDomain' => 'tao.com',
+            'ltiToken' => 'jwt-token'
         ]));
         $psrResponse = $this->createMock(ResponseInterface::class);
 
@@ -55,7 +57,7 @@ final class ResponseHelperTest extends TestCase
 
         $authMarkerFactoryMock->expects($this->once())
             ->method('withAuthDetails')
-            ->with($psrResponse, "clientId", "refreshTokenId", null, null, AuthorizationDetailsMarkerInterface::MODE_COOKIE)
+            ->with($psrResponse, "clientId", "refreshTokenId", null, null, "tao.com", "jwt-token", AuthorizationDetailsMarkerInterface::MODE_COOKIE)
             ->willReturn($psrResponse);
 
         $foundationFactoryMock->expects($this->once())
@@ -65,7 +67,7 @@ final class ResponseHelperTest extends TestCase
 
         $subject = new ResponseHelper($messageFactoryMock, $foundationFactoryMock, $authMarkerFactoryMock);
 
-        $response = $subject->withAuthorizationDetailsMarker($response, "clientId", "refreshTokenId");
+        $response = $subject->withAuthorizationDetailsMarker($response, "clientId", "refreshTokenId", null, null, "tao.com", "jwt-token");
         $withAuthDetailsHeader = $response->headers->get('X-OAT-WITH-AUTH-DETAILS');
 
         $this->assertNotNull(
@@ -79,6 +81,8 @@ final class ResponseHelperTest extends TestCase
         $this->assertEquals('clientId', $res_array['clientId']);
         $this->assertArrayHasKey('refreshTokenId', $res_array);
         $this->assertEquals('refreshTokenId', $res_array['refreshTokenId']);
+        $this->assertEquals('tao.com', $res_array['cookieDomain']);
+        $this->assertEquals('jwt-token', $res_array['ltiToken']);
         $this->assertArrayHasKey('mode', $res_array);
         $this->assertEquals(AuthorizationDetailsMarkerInterface::MODE_COOKIE, $res_array['mode']);
     }
