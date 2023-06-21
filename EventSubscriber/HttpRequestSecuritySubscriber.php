@@ -69,6 +69,10 @@ class HttpRequestSecuritySubscriber implements EventSubscriberInterface
 
         $scopes = $token->claims()->get('scopes');
 
+        if (!is_array($scopes)) {
+            $scopes = explode(' ', $scopes);
+        }
+
         if (count(array_intersect($scopes, $allowedScopes)) === 0) {
             throw new UnauthorizedHttpException('Bearer', 'Invalid scope(s)');
         }
