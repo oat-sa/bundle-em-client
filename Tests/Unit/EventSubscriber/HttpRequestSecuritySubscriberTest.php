@@ -77,7 +77,7 @@ class HttpRequestSecuritySubscriberTest extends TestCase
      */
     public function testValidateRouteOauth2Scopes(
         ?array $allowedScopes,
-        array $tokenScopes,
+        string|array $tokenScopes,
         ?string $expectedExceptionMessage,
     ): void
     {
@@ -143,6 +143,11 @@ class HttpRequestSecuritySubscriberTest extends TestCase
                 ['scope1', 'scope2'],
                 ['scope3'],
                 'Invalid scope(s)',
+            ],
+            'scopes defined as string' => [
+                ['scope1', 'scope2'],
+                'scope1 scope2',
+                null,
             ],
         ];
     }
