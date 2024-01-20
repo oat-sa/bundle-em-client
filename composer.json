@@ -28,9 +28,9 @@
     "oat-sa/lib-em-php-client": "*",
     "oat-sa/lib-em-php-lti-client": "*",
     "oat-sa/lib-em-php-lti-events": "*",
-    "symfony/framework-bundle": "^4.4 || ^5.1",
-    "symfony/http-client": "^4.4 || ^5.1",
-    "symfony/mime": "^4.4 || ^5.1",
+    "symfony/framework-bundle": "^4.4 || ^5.1 || ^6.1 || ^7.0",
+    "symfony/http-client": "^4.4 || ^5.1 || ^6.1 || ^7.0",
+    "symfony/mime": "^4.4 || ^5.1 || ^6.1 || ^7.0",
     "symfony/psr-http-message-bridge": "^2.1"
   },
   "require-dev": {
