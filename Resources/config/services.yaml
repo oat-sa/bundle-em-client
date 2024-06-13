@@ -49,6 +49,20 @@ services:
       - '@OAT\Library\EnvironmentManagementClient\Converter\LtiRegistrationConverter'
   ###< LTI libraries ###
 
+  ###> oat-sa/lib-em-php-proto ###
+  Oat\Envmgmt\Sidecar\ConfigServiceClient:
+    factory: ['@OAT\Library\EnvironmentManagementClient\Grpc\Factory\GrpcClientFactory', 'createConfigServiceClient']
+
+  Oat\Envmgmt\Sidecar\FeatureFlagServiceClient:
+    factory: ['@OAT\Library\EnvironmentManagementClient\Grpc\Factory\GrpcClientFactory', 'createFeatureFlagServiceClient']
+
+  Oat\Envmgmt\Sidecar\LtiServiceClient:
+    factory: ['@OAT\Library\EnvironmentManagementClient\Grpc\Factory\GrpcClientFactory', 'createLtiServiceClient']
+
+  Oat\Envmgmt\Sidecar\Oauth2ClientServiceClient:
+    factory: ['@OAT\Library\EnvironmentManagementClient\Grpc\Factory\GrpcClientFactory', 'createOauth2ClientServiceClient']
+  ###< oat-sa/lib-em-php-proto ###
+
   ###> oat-sa/lib-em-php-client ###
   OAT\Library\EnvironmentManagementClient\Http\FeatureFlagExtractorInterface:
     class: OAT\Library\EnvironmentManagementClient\Http\FeatureFlagHeaderExtractor
@@ -68,26 +82,33 @@ services:
   OAT\Library\EnvironmentManagementClient\Http\AuthorizationDetailsMarkerInterface:
     class: OAT\Library\EnvironmentManagementClient\Http\AuthorizationDetailsHeaderMarker
 
-  OAT\Library\EnvironmentManagementClient\Repository\ConfigurationRepositoryInterface:
-    class: OAT\Library\EnvironmentManagementClient\Repository\ConfigurationRepository
+  OAT\Library\EnvironmentManagementClient\Grpc\Factory\GrpcClientFactory:
     arguments:
-      $httpClient: '@http_client'
-      $cache: '@cache.app'
-      $authServerGrpcGatewayHost: '%env(EM_AUTH_SERVER_GRPC_GATEWAY_HOST)%'
+      - '@Psr\Log\LoggerInterface'
+
+  OAT\Library\EnvironmentManagementClient\Repository\ConfigurationRepositoryInterface:
+    class: OAT\Library\EnvironmentManagementClient\Grpc\ConfigurationRepository
+    arguments:
+      - '@Oat\Envmgmt\Sidecar\ConfigServiceClient'
+      - '@Psr\Log\LoggerInterface'
 
   OAT\Library\EnvironmentManagementClient\Repository\FeatureFlagRepositoryInterface:
-    class: OAT\Library\EnvironmentManagementClient\Repository\FeatureFlagRepository
+    class: OAT\Library\EnvironmentManagementClient\Grpc\FeatureFlagRepository
     arguments:
-      $httpClient: '@http_client'
-      $cache: '@cache.app'
-      $authServerGrpcGatewayHost: '%env(EM_AUTH_SERVER_GRPC_GATEWAY_HOST)%'
+      - '@Oat\Envmgmt\Sidecar\FeatureFlagServiceClient'
+      - '@Psr\Log\LoggerInterface'
 
   OAT\Library\EnvironmentManagementClient\Repository\LtiRegistrationRepositoryInterface:
-    class: OAT\Library\EnvironmentManagementClient\Repository\LtiRegistrationRepository
+    class: OAT\Library\EnvironmentManagementClient\Grpc\LtiRegistrationRepository
     arguments:
-      $httpClient: '@http_client'
-      $cache: '@cache.app'
-      $authServerGrpcGatewayHost: '%env(EM_AUTH_SERVER_GRPC_GATEWAY_HOST)%'
+      - '@Oat\Envmgmt\Sidecar\LtiServiceClient'
+      - '@Psr\Log\LoggerInterface'
+
+  OAT\Library\EnvironmentManagementClient\Repository\OAuth2ClientRepositoryInterface:
+    class: OAT\Library\EnvironmentManagementClient\Grpc\OAuth2ClientRepository
+    arguments:
+      - '@Oat\Envmgmt\Sidecar\Oauth2ClientServiceClient'
+      - '@Psr\Log\LoggerInterface'
 
   OAT\Library\EnvironmentManagementClient\Converter\LtiRegistrationConverter:
     class: OAT\Library\EnvironmentManagementClient\Converter\LtiRegistrationConverter
